@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.flickit.assessment.core.adapter.out.persistence.kit.attribute.AttributeMapper;
 import org.flickit.assessment.core.application.domain.QualityAttribute;
 import org.flickit.assessment.core.application.domain.Subject;
+import org.flickit.assessment.core.application.port.out.subject.CheckSubjectKitExistencePort;
 import org.flickit.assessment.core.application.port.out.subject.LoadSubjectPort;
 import org.flickit.assessment.core.application.port.out.subject.LoadSubjectsPort;
 import org.flickit.assessment.data.jpa.kit.subject.SubjectJpaRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.flickit.assessment.core.adapter.out.persistence.kit.subject.SubjectMapper.mapToDomainModel;
 
@@ -18,7 +20,8 @@ import static org.flickit.assessment.core.adapter.out.persistence.kit.subject.Su
 @RequiredArgsConstructor
 public class SubjectPersistenceJpaAdapter implements
     LoadSubjectsPort,
-    LoadSubjectPort {
+    LoadSubjectPort,
+    CheckSubjectKitExistencePort {
 
     private final SubjectJpaRepository repository;
 
@@ -39,5 +42,10 @@ public class SubjectPersistenceJpaAdapter implements
     public Optional<Subject> loadByIdAndKitVersionId(long id, long kitVersionId) {
         return repository.findByIdAndKitVersionId(id, kitVersionId)
             .map(entity -> mapToDomainModel(entity, null));
+    }
+
+    @Override
+    public boolean existsByIdAndAssessmentId(Long subjectId, UUID assessmentId) {
+        return repository.existsByIdAndAssessmentId(subjectId, assessmentId);
     }
 }

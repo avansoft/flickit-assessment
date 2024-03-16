@@ -54,4 +54,16 @@ public interface SubjectJpaRepository extends JpaRepository<SubjectJpaEntity, Lo
             WHERE s.id = :subjectId
         """)
     UUID findRefNumById(@Param(value = "subjectId") Long subjectId);
+
+    @Query("""
+        SELECT CASE WHEN EXISTS (SELECT 1
+        FROM SubjectJpaEntity s JOIN KitVersionJpaEntity kv ON s.kitVersionId = kv.id
+        JOIN AssessmentKitJpaEntity k ON kv.kit.id = k.id
+        JOIN AssessmentJpaEntity asm ON asm.assessmentKitId = k.id
+        WHERE
+            s.id = :subjectId
+            AND asm.id = :assessmentId)
+        THEN TRUE ELSE FALSE END
+    """)
+    boolean existsByIdAndAssessmentId(@Param("subjectId") Long subjectId, @Param("assessmentId") UUID assessmentId);
 }

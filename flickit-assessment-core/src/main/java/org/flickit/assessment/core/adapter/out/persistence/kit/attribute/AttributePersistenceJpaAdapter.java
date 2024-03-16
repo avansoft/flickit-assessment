@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.flickit.assessment.common.exception.ResourceNotFoundException;
 import org.flickit.assessment.core.application.port.in.attribute.GetAttributeScoreDetailUseCase.QuestionScore;
 import org.flickit.assessment.core.application.port.in.attribute.GetAttributeScoreDetailUseCase.Questionnaire;
+import org.flickit.assessment.core.application.port.in.subject.GetSubjectAttributesUseCase.SubjectAttribute;
 import org.flickit.assessment.core.application.port.out.attribute.LoadAttributeScoreDetailPort;
+import org.flickit.assessment.core.application.port.out.subject.LoadSubjectAttributesPort;
 import org.flickit.assessment.data.jpa.core.answer.AnswerJpaEntity;
 import org.flickit.assessment.data.jpa.core.assessmentresult.AssessmentResultJpaRepository;
 import org.flickit.assessment.data.jpa.kit.asnweroptionimpact.AnswerOptionImpactJpaEntity;
@@ -21,7 +23,7 @@ import static org.flickit.assessment.core.common.ErrorMessageKey.GET_ATTRIBUTE_S
 
 @Component("coreAttributePersistenceJpaAdapter")
 @RequiredArgsConstructor
-public class AttributePersistenceJpaAdapter implements LoadAttributeScoreDetailPort {
+public class AttributePersistenceJpaAdapter implements LoadAttributeScoreDetailPort, LoadSubjectAttributesPort {
 
     private final AttributeJpaRepository repository;
     private final AssessmentResultJpaRepository assessmentResultRepository;
@@ -65,5 +67,13 @@ public class AttributePersistenceJpaAdapter implements LoadAttributeScoreDetailP
         if(optionImpact == null) // if there exists an answer and notApplicable != true and no option is selected
             return 0.0;
         return optionImpact.getValue();
+    }
+
+    @Override
+    public List<SubjectAttribute> loadBySubjectIdAndAssessmentId(Long subjectId, UUID assessmentId) {
+        var subjectAttrViews = repository.findBySubjectIdAndAssessmentId(subjectId, assessmentId);
+        return subjectAttrViews.stream()
+            .map(e -> new SubjectAttribute(e.getAttributeId(), e.getMaturityLevelId(), e.getWeight()))
+            .toList();
     }
 }

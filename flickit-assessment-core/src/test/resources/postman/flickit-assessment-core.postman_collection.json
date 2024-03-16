@@ -822,6 +822,34 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Get Subject Attributes",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{authorization_header}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/{{api_path}}/assessments/8280e75b-ed71-4c82-9fac-920c52efb26c/subjects/331/attributes-info",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"{{api_path}}",
+						"assessments",
+						"8280e75b-ed71-4c82-9fac-920c52efb26c",
+						"subjects",
+						"331",
+						"attributes-info"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [

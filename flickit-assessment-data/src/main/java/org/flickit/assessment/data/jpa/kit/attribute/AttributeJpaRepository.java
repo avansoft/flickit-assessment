@@ -66,4 +66,20 @@ public interface AttributeJpaRepository extends JpaRepository<AttributeJpaEntity
         WHERE a.id = :attributeId
         """)
     UUID findRefNumById(@Param("attributeId") Long attributeId);
+
+    @Query("""
+        SELECT
+            a.id AS attributeId,
+            av.maturityLevelId AS maturityLevelId,
+            a.weight AS weight
+        FROM SubjectJpaEntity s JOIN AttributeJpaEntity a ON s.id = a.subject
+        JOIN QualityAttributeValueJpaEntity av ON av.attributeRefNum = a.refNum
+        JOIN AssessmentResultJpaEntity ar ON av.assessmentResult.id = ar.id
+        JOIN AssessmentJpaEntity asm ON ar.assessment.id = asm.id
+        WHERE
+            s.id = :subjectId
+            AND asm.id = :assessmentId
+    """)
+    List<SubjectAttributeView> findBySubjectIdAndAssessmentId(@Param("subjectId") Long subjectId,
+                                                              @Param("assessmentId") UUID assessmentId);
 }

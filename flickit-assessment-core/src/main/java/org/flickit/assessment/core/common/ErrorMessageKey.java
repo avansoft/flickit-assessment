@@ -100,6 +100,10 @@ public class ErrorMessageKey {
     public static final String GET_SUBJECT_PROGRESS_SUBJECT_ID_NOT_NULL = "get-subject-progress.subject.id.notNull";
     public static final String GET_SUBJECT_PROGRESS_SUBJECT_ID_NOT_FOUND = "get-subject-progress.subject.id.notFound";
 
+    public static final String GET_SUBJECT_ATTRIBUTES_ASSESSMENT_ID_NOT_NULL = "get-subject-attributes.assessment.id.notNull";
+    public static final String GET_SUBJECT_ATTRIBUTES_SUBJECT_ID_NOT_NULL = "get-subject-attributes.subject.id.notNull";
+    public static final String GET_SUBJECT_ATTRIBUTES_SUBJECT_ID_NOT_FOUND = "get-subject-attributes.subject.id.notFound";
+
     public static final String GET_ASSESSMENT_ASSESSMENT_ID_NOT_NULL = "get-assessment.assessmentId.notNull";
     public static final String GET_ASSESSMENT_ASSESSMENT_ID_NOT_FOUND = "get-assessment.assessmentId.notFound";
 
