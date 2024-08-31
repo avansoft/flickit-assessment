@@ -7,6 +7,6 @@ import java.util.UUID;
 public class UserMother {
 
     public static User userWithId(UUID id) {
-        return new User(id);
+        return new User(id, "George Adams");
     }
 }

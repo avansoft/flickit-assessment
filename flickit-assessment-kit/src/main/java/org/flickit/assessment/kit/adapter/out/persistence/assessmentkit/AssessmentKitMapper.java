@@ -62,6 +62,7 @@ public class AssessmentKitMapper {
             entity.getAbout(),
             entity.getCreationTime(),
             entity.getLastModificationTime(),
+            entity.getCreatedBy(),
             entity.getPublished(),
             entity.getIsPrivate(),
             entity.getExpertGroupId(),

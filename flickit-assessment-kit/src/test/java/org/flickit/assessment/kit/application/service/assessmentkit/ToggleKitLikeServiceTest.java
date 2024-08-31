@@ -9,6 +9,7 @@ import org.flickit.assessment.kit.application.port.out.kitlike.CountKitLikePort;
 import org.flickit.assessment.kit.application.port.out.kitlike.CreateKitLikePort;
 import org.flickit.assessment.kit.application.port.out.kitlike.DeleteKitLikePort;
 import org.flickit.assessment.kit.application.port.out.kituseraccess.CheckKitUserAccessPort;
+import org.flickit.assessment.kit.application.service.assessmentkit.notification.ToggleKitLikeNotificationCmd;
 import org.flickit.assessment.kit.test.fixture.application.AssessmentKitMother;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -92,8 +93,9 @@ class ToggleKitLikeServiceTest {
         when(countKitLikePort.countByKitId(param.getKitId())).thenReturn(1);
 
         ToggleKitLikeUseCase.Result result = service.toggleKitLike(param);
-        assertEquals(1, result.count());
-        assertTrue(result.liked());
+        ToggleKitLikeNotificationCmd notificationCmd = (ToggleKitLikeNotificationCmd) result.notificationCmd();
+        assertEquals(1, notificationCmd.likesCount());
+        assertTrue(notificationCmd.liked());
 
         verifyNoInteractions(deleteKitLikePort);
     }

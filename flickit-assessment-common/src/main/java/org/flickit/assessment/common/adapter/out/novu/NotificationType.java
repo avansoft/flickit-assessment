@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum NotificationType {
 
-    GRANT_USER_ASSESSMENT_ROLE;
+    GRANT_USER_ASSESSMENT_ROLE,
+    TOGGLE_KIT_LIKE;
 
     final String code;
 

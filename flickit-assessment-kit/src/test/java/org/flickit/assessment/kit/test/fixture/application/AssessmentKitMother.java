@@ -7,6 +7,7 @@ import org.flickit.assessment.kit.application.domain.Subject;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class AssessmentKitMother {
 
@@ -26,6 +27,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.TRUE,
             Boolean.FALSE,
             EXPERT_GROUP_ID,
@@ -44,6 +46,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.FALSE,
             Boolean.FALSE,
             EXPERT_GROUP_ID,
@@ -62,6 +65,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.TRUE,
             Boolean.FALSE,
             EXPERT_GROUP_ID,
@@ -80,6 +84,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.TRUE,
             Boolean.FALSE,
             EXPERT_GROUP_ID,
@@ -98,6 +103,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.TRUE,
             Boolean.FALSE,
             EXPERT_GROUP_ID,
@@ -116,6 +122,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.TRUE,
             Boolean.FALSE,
             EXPERT_GROUP_ID,
@@ -134,6 +141,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.TRUE,
             Boolean.FALSE,
             EXPERT_GROUP_ID,
@@ -152,6 +160,7 @@ public class AssessmentKitMother {
             ABOUT,
             LocalDateTime.now(),
             LocalDateTime.now(),
+            UUID.randomUUID(),
             Boolean.TRUE,
             Boolean.TRUE,
             EXPERT_GROUP_ID,

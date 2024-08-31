@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder(toBuilder = true)
@@ -19,6 +20,7 @@ public class AssessmentKit {
     private final String about;
     private final LocalDateTime creationTime;
     private final LocalDateTime lastModificationTime;
+    private final UUID createdBy;
     private final boolean published;
     private final boolean isPrivate;
     private final long expertGroupId;
