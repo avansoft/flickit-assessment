@@ -14,6 +14,7 @@ public class Space {
     private final String code;
     private final String title;
     private final UUID ownerId;
+    private final LocalDateTime subscriptionExpiry;
     private final LocalDateTime creationTime;
     private final LocalDateTime lastModificationTime;
     private final UUID createdBy;
