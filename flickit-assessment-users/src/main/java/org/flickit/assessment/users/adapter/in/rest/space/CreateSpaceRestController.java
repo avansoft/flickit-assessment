@@ -27,7 +27,7 @@ public class CreateSpaceRestController {
     }
 
     private Param toParam(CreateSpaceRequestDto request, UUID currentUserId) {
-        return new Param(request.title(), currentUserId);
+        return new Param(request.title(), request.type(), currentUserId);
     }
 
     private CreateSpaceResponseDto toResponseDto(CreateSpaceUseCase.Result result) {
