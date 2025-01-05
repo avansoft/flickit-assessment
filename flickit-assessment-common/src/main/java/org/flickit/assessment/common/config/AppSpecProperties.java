@@ -43,4 +43,13 @@ public class AppSpecProperties {
         @NotBlank
         String fromDisplayName = "Flickit";
     }
+
+    @Setter
+    @Getter
+    @ToString
+    public static class Space {
+        int maxPersonalSpaces = 1;
+        int maxPersonalSpaceAssessments = 2;
+        int maxPersonalSpaceMembers = 3;
+    }
 }

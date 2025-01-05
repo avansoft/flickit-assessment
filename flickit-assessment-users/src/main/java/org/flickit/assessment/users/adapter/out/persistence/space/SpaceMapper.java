@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.flickit.assessment.data.jpa.users.space.SpaceJpaEntity;
 import org.flickit.assessment.users.application.domain.Space;
+import org.flickit.assessment.common.application.domain.space.SpaceType;
 
 import static org.flickit.assessment.users.application.service.constant.SpaceConstants.NOT_DELETED_DELETION_TIME;
 
@@ -15,7 +16,9 @@ public class SpaceMapper {
             null,
             space.getCode(),
             space.getTitle(),
+            SpaceType.PERSONAL.getId(), //TODO: Should consider based on input
             space.getOwnerId(),
+            space.getSubscriptionExpiry(),
             space.getCreationTime(),
             space.getLastModificationTime(),
             space.getCreatedBy(),
@@ -30,6 +33,7 @@ public class SpaceMapper {
             entity.getCode(),
             entity.getTitle(),
             entity.getOwnerId(),
+            entity.getSubscriptionExpiry(),
             entity.getCreationTime(),
             entity.getLastModificationTime(),
             entity.getCreatedBy(),
