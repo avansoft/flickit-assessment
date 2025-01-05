@@ -9,12 +9,13 @@ public class SpaceMother {
 
     private static Long id = 134L;
 
-    public static Space createSpace(UUID ownerId) {
+    public static Space createPersonalSpace(UUID ownerId) {
         return new Space(
             id++,
             "Code" + id,
             "Title",
             ownerId,
+            null,
             LocalDateTime.now(),
             LocalDateTime.now(),
             UUID.randomUUID(),

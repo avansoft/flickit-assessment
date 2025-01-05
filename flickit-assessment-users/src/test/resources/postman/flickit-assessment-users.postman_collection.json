@@ -549,13 +549,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/{{api_path}}/space/{{id}}",
+							"raw": "{{base_url}}/{{api_path}}/spaces/{{id}}",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"{{api_path}}",
-								"space",
+								"spaces",
 								"{{id}}"
 							]
 						}
@@ -1041,11 +1041,12 @@
 					"request": {
 						"method": "GET",
 						"header": [
-						{
-							"key": "Accept-Language",
-							"value": "{{accept_language}}",
-							"type": "text"
-						}],
+							{
+								"key": "Accept-Language",
+								"value": "{{accept_language}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/{{api_path}}/tenant/info",
 							"host": [
@@ -1065,11 +1066,12 @@
 					"request": {
 						"method": "GET",
 						"header": [
-						{
-							"key": "Accept-Language",
-							"value": "{{accept_language}}",
-							"type": "text"
-						}],
+							{
+								"key": "Accept-Language",
+								"value": "{{accept_language}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/{{api_path}}/tenant/logo",
 							"host": [
@@ -1122,11 +1124,12 @@
 					"request": {
 						"method": "POST",
 						"header": [
-						{
-							"key": "Accept-Language",
-							"value": "{{accept_language}}",
-							"type": "text"
-						}],
+							{
+								"key": "Accept-Language",
+								"value": "{{accept_language}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"id\": \"28001724-d5b3-42f8-978f-90216cd7f573\",\n    \"email\": \"alisdg@gmail.com\",\n    \"displayName\": \"Ali Sedaghat\"\n}",
@@ -1154,11 +1157,12 @@
 					"request": {
 						"method": "GET",
 						"header": [
-						{
-							"key": "Accept-Language",
-							"value": "{{accept_language}}",
-							"type": "text"
-						}],
+							{
+								"key": "Accept-Language",
+								"value": "{{accept_language}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/{{api_path}}/users/email/admin@asta.ir",
 							"host": [

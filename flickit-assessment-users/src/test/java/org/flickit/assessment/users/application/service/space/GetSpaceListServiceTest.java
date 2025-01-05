@@ -35,8 +35,8 @@ class GetSpaceListServiceTest {
         int size = 10;
         int page = 0;
         UUID currentUserId = UUID.randomUUID();
-        var space1 = SpaceMother.createSpace(currentUserId);
-        var space2 = SpaceMother.createSpace(UUID.randomUUID());
+        var space1 = SpaceMother.createPersonalSpace(currentUserId);
+        var space2 = SpaceMother.createPersonalSpace(UUID.randomUUID());
         String ownerName = "sample name";
         var spacePortList = List.of(
             new LoadSpaceListPort.Result(space1, ownerName, 2, 5),
