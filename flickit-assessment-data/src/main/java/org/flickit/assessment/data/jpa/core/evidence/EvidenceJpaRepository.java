@@ -127,4 +127,37 @@ public interface EvidenceJpaRepository extends JpaRepository<EvidenceJpaEntity, 
         """)
     List<EvidencesQuestionnaireAndCountView> countQuestionnairesUnresolvedComments(@Param("assessmentId") UUID assessmentId,
                                                                                    @Param("questionnaireIds") Collection<Long> questionnaireIds);
+
+    @Query("""
+            SELECT q.id  AS questionId,
+                COUNT(DISTINCT q.id) AS count
+            FROM AnswerJpaEntity a
+            JOIN EvidenceJpaEntity e ON e.questionId  = a.questionId
+            JOIN AssessmentResultJpaEntity ar ON ar.assessment.id = e.assessmentId AND ar.id = a.assessmentResult.id
+            JOIN QuestionJpaEntity q ON e.questionId = q.id and ar.kitVersionId = q.kitVersionId
+            WHERE e.assessmentId  = :assessmentId
+                AND (a.answerOptionId IS NOT NULL OR a.isNotApplicable = true)
+                AND e.type IS NOT NULL
+                AND e.deleted = false
+                AND q.questionnaireId  = :questionnaireId
+            GROUP BY q.id
+        """)
+    List<EvidencesQuestionAndCountView> countQuestionnaireQuestionsHavingEvidence(@Param("assessmentId") UUID assessmentId,
+                                                                                  @Param("questionnaireId") long questionnaireId);
+
+    @Query("""
+            SELECT q.id as questionId,
+                COUNT(e) as count
+            FROM EvidenceJpaEntity e
+            JOIN QuestionJpaEntity q ON e.questionId = q.id
+            JOIN AssessmentResultJpaEntity ar on ar.assessment.id = e.assessmentId AND ar.kitVersionId = q.kitVersionId
+            WHERE e.assessmentId = :assessmentId
+                 AND q.questionnaireId = :questionnaireId
+                 AND e.type IS NULL
+                 AND e.resolved IS NULL
+                 AND e.deleted = false
+            GROUP BY q.id
+        """)
+    List<EvidencesQuestionAndCountView> countQuestionnaireQuestionsUnresolvedComments(@Param("assessmentId") UUID assessmentId,
+                                                                                      @Param("questionnaireId") long questionnaireId);
 }

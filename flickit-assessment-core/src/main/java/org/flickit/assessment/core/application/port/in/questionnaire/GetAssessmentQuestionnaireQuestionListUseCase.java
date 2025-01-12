@@ -55,7 +55,8 @@ public interface GetAssessmentQuestionnaireQuestionListUseCase {
                   String hint,
                   Boolean mayNotBeApplicable,
                   List<Option> options,
-                  QuestionAnswer answer) {
+                  QuestionAnswer answer,
+                  Issues issues) {
     }
 
     record Option(Long id, Integer index, String title) {
@@ -64,5 +65,11 @@ public interface GetAssessmentQuestionnaireQuestionListUseCase {
     record QuestionAnswer(Option selectedOption,
                           ConfidenceLevel confidenceLevel,
                           Boolean isNotApplicable) {
+    }
+
+    record Issues(boolean isUnanswered,
+                  Boolean isAnsweredWithLowConfidence,
+                  Boolean isAnsweredWithoutEvidences,
+                  int unresolvedCommentsCount){
     }
 }

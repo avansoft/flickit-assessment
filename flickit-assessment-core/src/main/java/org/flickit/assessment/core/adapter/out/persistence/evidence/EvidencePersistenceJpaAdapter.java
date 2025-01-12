@@ -7,10 +7,7 @@ import org.flickit.assessment.core.application.domain.Evidence;
 import org.flickit.assessment.core.application.port.out.evidence.*;
 import org.flickit.assessment.data.jpa.core.assessment.AssessmentJpaRepository;
 import org.flickit.assessment.data.jpa.core.assessmentresult.AssessmentResultJpaRepository;
-import org.flickit.assessment.data.jpa.core.evidence.EvidenceJpaEntity;
-import org.flickit.assessment.data.jpa.core.evidence.EvidenceJpaRepository;
-import org.flickit.assessment.data.jpa.core.evidence.EvidenceWithAttachmentsCountView;
-import org.flickit.assessment.data.jpa.core.evidence.EvidencesQuestionnaireAndCountView;
+import org.flickit.assessment.data.jpa.core.evidence.*;
 import org.flickit.assessment.data.jpa.kit.question.QuestionJpaRepository;
 import org.flickit.assessment.data.jpa.users.user.UserJpaEntity;
 import org.flickit.assessment.data.jpa.users.user.UserJpaRepository;
@@ -134,6 +131,24 @@ public class EvidencePersistenceJpaAdapter implements
             .collect(toMap(
                 EvidencesQuestionnaireAndCountView::getQuestionnaireId,
                 EvidencesQuestionnaireAndCountView::getCount));
+    }
+
+    @Override
+    public Map<Long, Integer> countAnsweredQuestionsHavingEvidence(UUID assessmentId, long questionnaireId) {
+        return repository.countQuestionnaireQuestionsHavingEvidence(assessmentId, questionnaireId).stream()
+            .collect(toMap(
+                EvidencesQuestionAndCountView::getQuestionId,
+                EvidencesQuestionAndCountView::getCount
+            ));
+    }
+
+    @Override
+    public Map<Long, Integer> countUnresolvedComments(UUID assessmentId, long questionnaireId) {
+        return repository.countQuestionnaireQuestionsUnresolvedComments(assessmentId, questionnaireId).stream()
+            .collect(toMap(
+                EvidencesQuestionAndCountView::getQuestionId,
+                EvidencesQuestionAndCountView::getCount
+            ));
     }
 
     @Override
