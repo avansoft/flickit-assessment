@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.flickit.assessment.common.application.SelfValidating;
+import org.flickit.assessment.common.application.domain.notification.HasNotificationCmd;
+import org.flickit.assessment.core.application.domain.notification.GrantAccessToReportNotificationCmd;
 
 import java.util.UUID;
 
@@ -16,7 +18,7 @@ import static org.flickit.assessment.core.common.ErrorMessageKey.GRANT_ACCESS_TO
 
 public interface GrantAccessToReportUseCase {
 
-    void grantAccessToReport(Param param);
+    Result grantAccessToReport(Param param);
 
     @Value
     @EqualsAndHashCode(callSuper = false)
@@ -39,5 +41,9 @@ public interface GrantAccessToReportUseCase {
             this.currentUserId = currentUserId;
             this.validateSelf();
         }
+
+    }
+
+    record Result(GrantAccessToReportNotificationCmd notificationCmd) implements HasNotificationCmd {
     }
 }
