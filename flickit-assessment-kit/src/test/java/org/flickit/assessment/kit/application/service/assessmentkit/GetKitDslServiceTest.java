@@ -3,15 +3,11 @@ package org.flickit.assessment.kit.application.service.assessmentkit;
 import org.flickit.assessment.common.exception.AccessDeniedException;
 import org.flickit.assessment.common.exception.ValidationException;
 import org.flickit.assessment.kit.application.domain.Attribute;
+import org.flickit.assessment.kit.application.domain.dsl.AssessmentKitDslModel;
 import org.flickit.assessment.kit.application.port.in.assessmentkit.GetKitDslUseCase;
-import org.flickit.assessment.kit.application.port.out.answerrange.LoadAnswerRangesPort;
 import org.flickit.assessment.kit.application.port.out.assessmentkit.LoadAssessmentKitPort;
-import org.flickit.assessment.kit.application.port.out.attribute.LoadAttributesPort;
 import org.flickit.assessment.kit.application.port.out.expertgroupaccess.CheckExpertGroupAccessPort;
-import org.flickit.assessment.kit.application.port.out.maturitylevel.LoadMaturityLevelsPort;
-import org.flickit.assessment.kit.application.port.out.question.LoadQuestionsPort;
-import org.flickit.assessment.kit.application.port.out.questionnaire.LoadQuestionnairesPort;
-import org.flickit.assessment.kit.application.port.out.subject.LoadSubjectsPort;
+import org.flickit.assessment.kit.application.port.out.kitdsl.LoadKitDslModelPort;
 import org.flickit.assessment.kit.test.fixture.application.AssessmentKitMother;
 import org.flickit.assessment.kit.test.fixture.application.AttributeMother;
 import org.flickit.assessment.kit.test.fixture.application.SubjectMother;
@@ -51,22 +47,7 @@ class GetKitDslServiceTest {
     CheckExpertGroupAccessPort checkExpertGroupAccessPort;
 
     @Mock
-    LoadQuestionnairesPort loadQuestionnairesPort;
-
-    @Mock
-    LoadAttributesPort loadAttributesPort;
-
-    @Mock
-    LoadQuestionsPort loadQuestionsPort;
-
-    @Mock
-    LoadSubjectsPort loadSubjectsPort;
-
-    @Mock
-    LoadMaturityLevelsPort loadMaturityLevelsPort;
-
-    @Mock
-    LoadAnswerRangesPort loadAnswerRangesPort;
+    LoadKitDslModelPort loadKitDslModelPort;
 
     @Test
     void testGetKitDsl_userIsNotExpertGroupMember_throwsAccessDeniedException() {
@@ -127,14 +108,18 @@ class GetKitDslServiceTest {
         var dslRangeTwo = AnswerRangeDslModelMother.domainToDslModel(answerRangeTwo,
             b-> b.answerOptions(dslOptionsRangeOne));
 
+        var kitDslModel = AssessmentKitDslModel.builder()
+            .questionnaires(List.of(dslQuestionnaire))
+            .attributes(List.of(dslAttrOne, dslAttrTwo))
+            .questions(List.of(dslQuestionOne, dslQuestionTwo))
+            .subjects(List.of(subjectDslModel))
+            .maturityLevels(List.of(dslMaturityLevelTwo, dslMaturityLevelThree))
+            .answerRanges(List.of(dslRangeOne, dslRangeTwo))
+            .build();
+
         when(loadAssessmentKitPort.load(param.getKitId())).thenReturn(kit);
         when(checkExpertGroupAccessPort.checkIsMember(kit.getExpertGroupId(), param.getCurrentUserId())).thenReturn(true);
-        when(loadQuestionnairesPort.loadDslModels(kit.getActiveVersionId())).thenReturn(List.of(dslQuestionnaire));
-        when(loadAttributesPort.loadDslModels(param.getKitId())).thenReturn(List.of(dslAttrOne, dslAttrTwo));
-        when(loadQuestionsPort.loadDslModels(kit.getActiveVersionId())).thenReturn(List.of(dslQuestionOne, dslQuestionTwo));
-        when(loadSubjectsPort.loadDslModels(param.getKitId())).thenReturn(List.of(subjectDslModel));
-        when(loadMaturityLevelsPort.loadDslModels(param.getKitId())).thenReturn(List.of(dslMaturityLevelThree, dslMaturityLevelTwo));
-        when(loadAnswerRangesPort.loadDslModels(param.getKitId())).thenReturn(List.of(dslRangeOne, dslRangeTwo));
+        when(loadKitDslModelPort.load(kit.getActiveVersionId())).thenReturn(kitDslModel);
 
         var result = service.getKitDsl(param);
         assertEquals(1, result.getQuestionnaires().size());

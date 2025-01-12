@@ -3,7 +3,6 @@ package org.flickit.assessment.kit.application.port.out.subject;
 import org.flickit.assessment.common.application.domain.crud.PaginatedResponse;
 import org.flickit.assessment.common.exception.ResourceNotFoundException;
 import org.flickit.assessment.kit.application.domain.Subject;
-import org.flickit.assessment.kit.application.domain.dsl.SubjectDslModel;
 
 import java.util.List;
 
@@ -32,6 +31,4 @@ public interface LoadSubjectsPort {
     List<Subject> loadSubjectsWithoutAttribute(long kitVersionId);
 
     PaginatedResponse<Subject> loadWithAttributesByKitVersionId(long kitVersionId, int page, int size);
-
-    List<SubjectDslModel> loadDslModels(Long kitVersionId);
 }

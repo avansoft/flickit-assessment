@@ -5,29 +5,19 @@ import org.flickit.assessment.common.application.domain.crud.PaginatedResponse;
 import org.flickit.assessment.common.exception.ResourceNotFoundException;
 import org.flickit.assessment.data.jpa.kit.answeroption.AnswerOptionJpaEntity;
 import org.flickit.assessment.data.jpa.kit.answeroption.AnswerOptionJpaRepository;
-import org.flickit.assessment.data.jpa.kit.answerrange.AnswerRangeJoinOptionView;
-import org.flickit.assessment.data.jpa.kit.answerrange.AnswerRangeJpaRepository;
-import org.flickit.assessment.data.jpa.kit.attribute.AttributeJpaEntity;
 import org.flickit.assessment.data.jpa.kit.attribute.AttributeJpaRepository;
-import org.flickit.assessment.data.jpa.kit.maturitylevel.MaturityLevelJpaEntity;
 import org.flickit.assessment.data.jpa.kit.maturitylevel.MaturityLevelJpaRepository;
 import org.flickit.assessment.data.jpa.kit.question.AttributeLevelImpactfulQuestionsView;
 import org.flickit.assessment.data.jpa.kit.question.QuestionJoinQuestionImpactView;
 import org.flickit.assessment.data.jpa.kit.question.QuestionJpaEntity;
 import org.flickit.assessment.data.jpa.kit.question.QuestionJpaRepository;
 import org.flickit.assessment.data.jpa.kit.questionimpact.QuestionImpactJpaRepository;
-import org.flickit.assessment.data.jpa.kit.questionnaire.QuestionnaireJpaEntity;
-import org.flickit.assessment.data.jpa.kit.questionnaire.QuestionnaireJpaRepository;
 import org.flickit.assessment.data.jpa.kit.seq.KitDbSequenceGenerators;
 import org.flickit.assessment.kit.adapter.out.persistence.answeroption.AnswerOptionMapper;
 import org.flickit.assessment.kit.adapter.out.persistence.questionimpact.QuestionImpactMapper;
 import org.flickit.assessment.kit.application.domain.Question;
 import org.flickit.assessment.kit.application.domain.QuestionImpact;
 import org.flickit.assessment.kit.application.domain.Questionnaire;
-import org.flickit.assessment.kit.application.domain.dsl.AnswerOptionDslModel;
-import org.flickit.assessment.kit.application.domain.dsl.MaturityLevelDslModel;
-import org.flickit.assessment.kit.application.domain.dsl.QuestionDslModel;
-import org.flickit.assessment.kit.application.domain.dsl.QuestionImpactDslModel;
 import org.flickit.assessment.kit.application.port.out.question.*;
 import org.flickit.assessment.kit.application.port.out.subject.CountSubjectQuestionsPort;
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +26,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -65,8 +54,6 @@ public class QuestionPersistenceJpaAdapter implements
     private final AttributeJpaRepository attributeRepository;
     private final QuestionImpactJpaRepository questionImpactRepository;
     private final KitDbSequenceGenerators sequenceGenerators;
-    private final QuestionnaireJpaRepository questionnaireRepository;
-    private final AnswerRangeJpaRepository answerRangeRepository;
 
     @Override
     public void update(UpdateQuestionPort.Param param) {
@@ -156,80 +143,6 @@ public class QuestionPersistenceJpaAdapter implements
         return repository.findAllByKitVersionIdAndWithoutImpact(kitVersionId)
             .stream()
             .map(QuestionMapper::mapToPortResult)
-            .toList();
-    }
-
-    @Override
-    public List<QuestionDslModel> loadDslModels(long kitVersionId) {
-        var questionWithImpactsViews = repository.loadByKitVersionId(kitVersionId);
-        var questionEntityToViews = questionWithImpactsViews.stream()
-            .collect(Collectors.groupingBy(QuestionJoinQuestionImpactView::getQuestion));
-
-        var questionnaireEntities = questionnaireRepository.findAllByKitVersionId(kitVersionId)
-            .stream()
-            .sorted(comparing(QuestionnaireJpaEntity::getCode))
-            .toList();
-        var maturityLevelIdMap = maturityLevelRepository.findAllByKitVersionId(kitVersionId).stream()
-            .collect(Collectors.toMap(MaturityLevelJpaEntity::getId, Function.identity()));
-        var attributeIdMap = attributeRepository.findAllByKitVersionId(kitVersionId).stream()
-            .collect(Collectors.toMap(AttributeJpaEntity::getId, Function.identity()));
-
-        var rangeViews = answerRangeRepository.findAllWithOptionsByKitVersionId(kitVersionId);
-
-        Map<Long, List<AnswerOptionJpaEntity>> answerRangeIdToOptions = rangeViews.stream()
-            .collect(Collectors.groupingBy(
-                a -> a.getAnswerRange().getId(),
-                Collectors.mapping(AnswerRangeJoinOptionView::getAnswerOption, Collectors.toList())
-            ));
-
-        var answerRangeIdToEntity = rangeViews.stream()
-            .collect(toMap(v -> v.getAnswerRange().getId(), AnswerRangeJoinOptionView::getAnswerRange,
-                (existing, duplicate) -> existing
-            ));
-
-        return questionEntityToViews.entrySet().stream()
-            //.sorted(Comparator.comparingInt(e -> e.getKey().getIndex()))
-            .map(entry -> {
-                var questionEntity = entry.getKey();
-                var impactEntities = entry.getValue().stream().map(QuestionJoinQuestionImpactView::getQuestionImpact).toList();
-                var optionIndexToValue = answerRangeIdToOptions.get(questionEntity.getAnswerRangeId()).stream()
-                    .collect(Collectors.toMap(AnswerOptionJpaEntity::getIndex, AnswerOptionJpaEntity::getValue));
-
-                String questionnaireCode = questionnaireEntities.stream()
-                    //.sorted(Comparator.comparing(QuestionnaireJpaEntity::getCode))
-                    .filter(q -> Objects.equals(q.getId(), questionEntity.getQuestionnaireId()))
-                    .findFirst()
-                    .map(QuestionnaireJpaEntity::getCode)
-                    .orElse(null);
-
-                List<QuestionImpactDslModel> impacts = impactEntities.stream()
-                    .map(im ->
-                        QuestionImpactDslModel.builder()
-                            .attributeCode(attributeIdMap.get(im.getAttributeId()).getCode())
-                            .maturityLevel(MaturityLevelDslModel.builder()
-                                .code(maturityLevelIdMap.get(im.getMaturityLevelId()).getCode())
-                                .title(maturityLevelIdMap.get(im.getMaturityLevelId()).getTitle())
-                                .build())
-                            .weight(im.getWeight())
-                            .optionsIndextoValueMap(optionIndexToValue)
-                            .build()
-                    ).toList();
-
-                String answerRangeCode = answerRangeIdToEntity.get(questionEntity.getAnswerRangeId()).getCode();
-                List<AnswerOptionDslModel> answerOptions = null;
-                if (!answerRangeIdToEntity.get(questionEntity.getAnswerRangeId()).isReusable()) {
-                    answerRangeCode = null;
-                    answerOptions = answerRangeIdToOptions.get(questionEntity.getAnswerRangeId()).stream()
-                        .map(AnswerOptionMapper::mapToDslModel)
-                        .toList();
-                }
-
-                assert questionnaireCode != null;
-                return QuestionMapper.mapToDslModel(
-                    questionEntity, questionnaireCode, answerRangeCode, impacts, answerOptions);
-            })
-            .sorted(comparing(QuestionDslModel::getQuestionnaireCode)
-                .thenComparing(QuestionDslModel::getIndex))
             .toList();
     }
 

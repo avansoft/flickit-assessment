@@ -4,7 +4,6 @@ package org.flickit.assessment.kit.application.port.out.maturitylevel;
 import org.flickit.assessment.common.application.domain.crud.PaginatedResponse;
 import org.flickit.assessment.common.exception.ResourceNotFoundException;
 import org.flickit.assessment.kit.application.domain.MaturityLevel;
-import org.flickit.assessment.kit.application.domain.dsl.MaturityLevelDslModel;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,13 +42,4 @@ public interface LoadMaturityLevelsPort {
      * @throws ResourceNotFoundException if the kit version ID is not found.
      */
     List<MaturityLevel> loadByKitVersionId(long kitVersionId, Collection<Long> ids);
-
-    /**
-     * Loads DSL models of maturity levels associated with a specific kit version ID.
-     *
-     * @param kitVersionId The ID of the kit version for which maturity level DSL models are to be loaded.
-     * @return A list of MaturityLevelDslModel objects associated with the given kit version ID.
-     * @throws ResourceNotFoundException if the kit version ID is not found.
-     */
-    List<MaturityLevelDslModel> loadDslModels(long kitVersionId);
 }
