@@ -65,7 +65,7 @@ class UpdateEvidenceUseCaseParamTest {
     @Test
     void testUpdateEvidenceParam_DescriptionSizeIsGreaterThanMax_ErrorMessage() {
         var id = UUID.randomUUID();
-        var desc = randomAlphabetic(201);
+        var desc = randomAlphabetic(501);
         UUID lastModifiedById = UUID.randomUUID();
         var throwable = assertThrows(ConstraintViolationException.class,
             () -> new UpdateEvidenceUseCase.Param(id, desc, "POSITIVE", lastModifiedById));

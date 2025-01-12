@@ -27,7 +27,7 @@ public interface UpdateEvidenceUseCase {
 
         @NotBlank(message = UPDATE_EVIDENCE_DESC_NOT_BLANK)
         @Size(min = 3, message = UPDATE_EVIDENCE_DESC_MIN_SIZE)
-        @Size(max = 200, message = UPDATE_EVIDENCE_DESC_MAX_SIZE)
+        @Size(max = 500, message = UPDATE_EVIDENCE_DESC_MAX_SIZE)
         String description;
 
         @EnumValue(enumClass = EvidenceType.class, message = UPDATE_EVIDENCE_TYPE_INVALID)

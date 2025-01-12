@@ -43,7 +43,7 @@ class AddEvidenceUseCaseParamTest {
     void testAddEvidenceParam_DescriptionSizeIsGreaterThanMax_ErrorMessage() {
         var assessmentId = UUID.randomUUID();
         UUID createdById = UUID.randomUUID();
-        var desc = randomAlphabetic(201);
+        var desc = randomAlphabetic(501);
         var throwable = assertThrows(ConstraintViolationException.class,
             () -> new AddEvidenceUseCase.Param(desc, assessmentId, 1L, "POSITIVE", createdById));
         assertThat(throwable).hasMessage("description: " + ADD_EVIDENCE_DESC_SIZE_MAX);
@@ -53,7 +53,7 @@ class AddEvidenceUseCaseParamTest {
     void testAddEvidenceParam_DescriptionSizeIsEqualToMax_Success() {
         UUID createdById = UUID.randomUUID();
         assertDoesNotThrow(
-            () -> new AddEvidenceUseCase.Param(randomAlphabetic(200), UUID.randomUUID(), 1L, "POSITIVE", createdById));
+            () -> new AddEvidenceUseCase.Param(randomAlphabetic(500), UUID.randomUUID(), 1L, "POSITIVE", createdById));
     }
 
     @Test
