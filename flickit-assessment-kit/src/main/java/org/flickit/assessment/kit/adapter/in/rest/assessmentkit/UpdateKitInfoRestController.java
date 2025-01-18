@@ -33,6 +33,7 @@ public class UpdateKitInfoRestController {
             kitId,
             request.title(),
             request.summary(),
+            request.lang(),
             request.published(),
             request.isPrivate(),
             request.price(),

@@ -30,6 +30,7 @@ public class CreateKitByDslRestController {
             request.title(),
             request.summary(),
             request.about(),
+            request.lang(),
             request.isPrivate(),
             request.kitDslId(),
             request.expertGroupId(),

@@ -2,105 +2,100 @@ package org.flickit.assessment.kit.application.port.in.assessmentkit;
 
 import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.flickit.assessment.kit.application.port.in.assessmentkit.UpdateKitInfoUseCase.Param;
+import org.flickit.assessment.common.exception.ValidationException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.flickit.assessment.common.error.ErrorMessageKey.COMMON_CURRENT_USER_ID_NOT_NULL;
 import static org.flickit.assessment.kit.common.ErrorMessageKey.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
 class UpdateKitInfoUseCaseParamTest {
 
     @Test
-    void testUpdateKitInfo_kitIdIsNull_ErrorMessage() {
-        UUID currentUserId = UUID.randomUUID();
-
+    void testUpdateKitInfoUseCaseParam_kitIdParamViolatesConstraints_ErrorMessage() {
         var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(null, "title", "summary", null, null, null, "about", null, currentUserId));
+            () -> createParam(b -> b.kitId(null)));
         assertThat(throwable).hasMessage("kitId: " + UPDATE_KIT_INFO_KIT_ID_NOT_NULL);
     }
 
     @Test
-    void testUpdateKitInfo_TitleLengthIsLessThanLimit_ErrorMessage() {
-        String minTitle = "t";
-        UUID currentUserId = UUID.randomUUID();
-
+    void testUpdateKitInfoUseCaseParam_TitleParamViolatesConstraints_ErrorMessage() {
         var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, minTitle, "summary", null, null, null, "about", null, currentUserId));
+            () -> createParam(b -> b.title("ab")));
         assertThat(throwable).hasMessage("title: " + UPDATE_KIT_INFO_TITLE_SIZE_MIN);
-    }
 
-    @Test
-    void testUpdateKitInfo_TitleLengthIsMoreThanLimit_ErrorMessage() {
-        String maxTitle = RandomStringUtils.randomAlphabetic(51);
-        UUID currentUserId = UUID.randomUUID();
-
-        var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, maxTitle, "summary", null, null, null, "about", null, currentUserId));
+        throwable = assertThrows(ConstraintViolationException.class,
+            () -> createParam(b -> b.title(RandomStringUtils.randomAlphabetic(51))));
         assertThat(throwable).hasMessage("title: " + UPDATE_KIT_INFO_TITLE_SIZE_MAX);
     }
 
     @Test
-    void testUpdateKitInfo_SummaryLengthIsLessThanLimit_ErrorMessage() {
-        String minSummary = "s";
-        UUID currentUserId = UUID.randomUUID();
-
+    void testUpdateKitInfoUseCaseParam_summaryParamViolatesConstraints_ErrorMessage() {
         var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, "title", minSummary, null, null, null, "about", null, currentUserId));
+            () -> createParam(b -> b.summary("ab")));
         assertThat(throwable).hasMessage("summary: " + UPDATE_KIT_INFO_SUMMARY_SIZE_MIN);
-    }
 
-    @Test
-    void testUpdateKitInfo_SummaryLengthIsMoreThanLimit_ErrorMessage() {
-        String maxSummary = RandomStringUtils.randomAlphabetic(201);
-        UUID currentUserId = UUID.randomUUID();
-
-        var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, "title", maxSummary, null, null, null, "about", null, currentUserId));
+        throwable = assertThrows(ConstraintViolationException.class,
+            () -> createParam(b -> b.summary(RandomStringUtils.randomAlphabetic(201))));
         assertThat(throwable).hasMessage("summary: " + UPDATE_KIT_INFO_SUMMARY_SIZE_MAX);
     }
 
     @Test
-    void testUpdateKitInfo_AboutIsLessThanLimit_ErrorMessage() {
-        String minAbout = "a";
-        UUID currentUserId = UUID.randomUUID();
-
+    void testUpdateKitInfoUseCaseParam_aboutParamViolatesConstraints_ErrorMessage() {
         var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, "title", "summary", null, null, null, minAbout, null, currentUserId));
+            () -> createParam(b -> b.about("ab")));
         assertThat(throwable).hasMessage("about: " + UPDATE_KIT_INFO_ABOUT_SIZE_MIN);
-    }
 
-    @Test
-    void testUpdateKitInfo_AboutIsMoreThanLimit_ErrorMessage() {
-        String maxAbout = RandomStringUtils.randomAlphabetic(1001);
-        UUID currentUserId = UUID.randomUUID();
-
-        var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, "title", "summary", null, null, null, maxAbout, null, currentUserId));
+        throwable = assertThrows(ConstraintViolationException.class,
+            () -> createParam(b -> b.about(RandomStringUtils.randomAlphabetic(1001))));
         assertThat(throwable).hasMessage("about: " + UPDATE_KIT_INFO_ABOUT_SIZE_MAX);
     }
 
     @Test
-    void testUpdateKitInfo_tagsIsEmpty_ErrorMessage() {
-        UUID currentUserId = UUID.randomUUID();
-        List<Long> tags = List.of();
+    void testUpdateKitInfoUseCaseParam_langParamViolatesConstraints_ErrorMessage() {
+        var throwable = assertThrows(ValidationException.class,
+            () -> createParam(b -> b.lang("FR")));
+        assertEquals(UPDATE_KIT_INFO_KIT_LANGUAGE_INVALID, throwable.getMessageKey());
+    }
 
+    @Test
+    void testUpdateKitInfoUseCaseParam_tagsParamViolatesConstraints_ErrorMessage() {
         var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, null, null, null, null, null, null, tags, currentUserId));
+            () -> createParam(b -> b.tags(new ArrayList<>())));
         assertThat(throwable).hasMessage("tags: " + UPDATE_KIT_INFO_TAGS_SIZE_MIN);
     }
 
     @Test
-    void testUpdateKitInfo_CurrentUserIdIsNull_ErrorMessage() {
+    void testUpdateKitInfoUseCaseParam_currentUserIdParamViolatesConstraints_ErrorMessage() {
         var throwable = assertThrows(ConstraintViolationException.class,
-            () -> new Param(123L, null, null, null, null, null, null, null, null));
+            () -> createParam(b -> b.currentUserId(null)));
         assertThat(throwable).hasMessage("currentUserId: " + COMMON_CURRENT_USER_ID_NOT_NULL);
+    }
+
+    private void createParam(Consumer<UpdateKitInfoUseCase.Param.ParamBuilder> changer) {
+        var param = paramBuilder();
+        changer.accept(param);
+        param.build();
+    }
+
+    private UpdateKitInfoUseCase.Param.ParamBuilder paramBuilder() {
+        return UpdateKitInfoUseCase.Param.builder()
+            .kitId(1L)
+            .title("title")
+            .summary("summary")
+            .about("about")
+            .lang("EN")
+            .published(true)
+            .isPrivate(false)
+            .price(10d)
+            .tags(List.of(1L))
+            .currentUserId(UUID.randomUUID());
     }
 }

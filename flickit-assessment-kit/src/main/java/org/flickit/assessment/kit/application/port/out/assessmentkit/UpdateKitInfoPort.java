@@ -12,6 +12,7 @@ public interface UpdateKitInfoPort {
                  String code,
                  String title,
                  String summary,
+                 String lang,
                  Boolean published,
                  Boolean isPrivate,
                  Double price,

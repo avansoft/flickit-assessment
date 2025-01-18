@@ -91,6 +91,7 @@ class CreateAssessmentKitServiceTest {
         assertEquals(param.getTitle(), createKitPortParamCaptor.getValue().title());
         assertEquals(param.getSummary(), createKitPortParamCaptor.getValue().summary());
         assertEquals(param.getAbout(), createKitPortParamCaptor.getValue().about());
+        assertEquals(param.getLang(), createKitPortParamCaptor.getValue().lang());
         assertFalse(createKitPortParamCaptor.getValue().published());
         assertEquals(param.getIsPrivate(), createKitPortParamCaptor.getValue().isPrivate());
         assertEquals(param.getExpertGroupId(), createKitPortParamCaptor.getValue().expertGroupId());
@@ -117,6 +118,7 @@ class CreateAssessmentKitServiceTest {
             .title("Enterprise")
             .summary("summary")
             .about("about")
+            .lang("EN")
             .isPrivate(true)
             .expertGroupId(123L)
             .tagIds(List.of(1L, 2L, 3L))

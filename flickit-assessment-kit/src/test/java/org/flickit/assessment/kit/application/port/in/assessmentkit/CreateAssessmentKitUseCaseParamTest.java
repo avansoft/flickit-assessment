@@ -3,6 +3,9 @@ package org.flickit.assessment.kit.application.port.in.assessmentkit;
 import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +14,7 @@ import java.util.function.Consumer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.flickit.assessment.common.error.ErrorMessageKey.COMMON_CURRENT_USER_ID_NOT_NULL;
 import static org.flickit.assessment.kit.common.ErrorMessageKey.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CreateAssessmentKitUseCaseParamTest {
@@ -61,6 +65,17 @@ class CreateAssessmentKitUseCaseParamTest {
         assertThat(throwable).hasMessage("about: " + CREATE_ASSESSMENT_KIT_ABOUT_SIZE_MAX);
     }
 
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"  ", "\t", "\n"})
+    void testCreateAssessmentKitUseCaseParam_whenLangParamViolatesConstraints_thenSetLangToDefault(String lang) {
+        var param = createParam(b -> b.lang(lang));
+        assertEquals("EN", param.getLang());
+
+        param = createParam(b -> b.lang("FR"));
+        assertEquals("EN", param.getLang());
+    }
+
     @Test
     void testCreateAssessmentKitUseCaseParam_isPrivateIsNull_ErrorMessage() {
         var throwable = assertThrows(ConstraintViolationException.class,
@@ -93,10 +108,10 @@ class CreateAssessmentKitUseCaseParamTest {
         assertThat(throwable).hasMessage("currentUserId: " + COMMON_CURRENT_USER_ID_NOT_NULL);
     }
 
-    private void createParam(Consumer<CreateAssessmentKitUseCase.Param.ParamBuilder> changer) {
+    private CreateAssessmentKitUseCase.Param createParam(Consumer<CreateAssessmentKitUseCase.Param.ParamBuilder> changer) {
         var paramBuilder = paramBuilder();
         changer.accept(paramBuilder);
-        paramBuilder.build();
+        return paramBuilder.build();
     }
 
     private CreateAssessmentKitUseCase.Param.ParamBuilder paramBuilder() {
@@ -104,6 +119,7 @@ class CreateAssessmentKitUseCaseParamTest {
             .title("Enterprise")
             .summary("summary")
             .about("about")
+            .lang("EN")
             .isPrivate(true)
             .expertGroupId(123L)
             .tagIds(List.of(1L, 2L, 3L))

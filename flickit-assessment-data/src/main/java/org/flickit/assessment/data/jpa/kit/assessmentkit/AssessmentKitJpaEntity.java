@@ -45,6 +45,9 @@ public class AssessmentKitJpaEntity {
     @Column(name = "expert_group_id", nullable = false)
     private Long expertGroupId;
 
+    @Column(name = "language_id", nullable = false)
+    private Integer languageId;
+
     @Column(name = "creation_time", nullable = false)
     private LocalDateTime creationTime;
 

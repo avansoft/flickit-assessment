@@ -40,6 +40,7 @@ public class GetKitEditableInfoService implements GetKitEditableInfoUseCase {
             assessmentKit.getId(),
             assessmentKit.getTitle(),
             assessmentKit.getSummary(),
+            assessmentKit.getLang(),
             assessmentKit.isPublished(),
             assessmentKit.isPrivate(),
             0D,

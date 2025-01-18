@@ -7,6 +7,7 @@ import java.util.List;
 public record GetKitEditableInfoResponseDto(Long id,
                                             String title,
                                             String summary,
+                                            String lang,
                                             Boolean published,
                                             Boolean isPrivate,
                                             Double price,

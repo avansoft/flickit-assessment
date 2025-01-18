@@ -42,6 +42,7 @@ public class UpdateKitInfoService implements UpdateKitInfoUseCase {
     private boolean containsNonNullParam(Param param) {
         return Objects.nonNull(param.getTitle()) ||
             Objects.nonNull(param.getSummary()) ||
+            Objects.nonNull(param.getLang()) ||
             Objects.nonNull(param.getPublished()) ||
             Objects.nonNull(param.getIsPrivate()) ||
             Objects.nonNull(param.getPrice()) ||
@@ -55,6 +56,7 @@ public class UpdateKitInfoService implements UpdateKitInfoUseCase {
             param.getTitle() != null ? generateSlugCode(param.getTitle()) : null,
             param.getTitle(),
             param.getSummary(),
+            param.getLang(),
             param.getPublished(),
             param.getIsPrivate(),
             param.getPrice(),

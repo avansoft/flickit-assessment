@@ -10,6 +10,7 @@ public interface CreateAssessmentKitPort {
                  String title,
                  String summary,
                  String about,
+                 String lang,
                  boolean published,
                  boolean isPrivate,
                  long expertGroupId,

@@ -56,6 +56,7 @@ public class CreateAssessmentKitService implements CreateAssessmentKitUseCase {
             param.getTitle(),
             param.getSummary(),
             param.getAbout(),
+            param.getLang(),
             Boolean.FALSE,
             param.getIsPrivate(),
             param.getExpertGroupId(),

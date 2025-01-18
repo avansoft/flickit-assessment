@@ -8,7 +8,9 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.flickit.assessment.common.application.SelfValidating;
+import org.flickit.assessment.kit.application.domain.KitLanguage;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,6 +40,8 @@ public interface CreateAssessmentKitUseCase {
         @Size(max = 1000, message = CREATE_ASSESSMENT_KIT_ABOUT_SIZE_MAX)
         String about;
 
+        String lang;
+
         @NotNull(message = CREATE_ASSESSMENT_KIT_IS_PRIVATE_NOT_NULL)
         Boolean isPrivate;
 
@@ -51,7 +55,14 @@ public interface CreateAssessmentKitUseCase {
         UUID currentUserId;
 
         @Builder
-        public Param(String title, String summary, String about, Boolean isPrivate, Long expertGroupId, List<Long> tagIds, UUID currentUserId) {
+        public Param(String title,
+                     String summary,
+                     String about,
+                     String lang,
+                     Boolean isPrivate,
+                     Long expertGroupId,
+                     List<Long> tagIds,
+                     UUID currentUserId) {
             this.title = title != null ? title.strip() : null;
             this.summary = summary != null ? summary.strip() : null;
             this.about = about != null ? about.strip() : null;
@@ -59,7 +70,20 @@ public interface CreateAssessmentKitUseCase {
             this.expertGroupId = expertGroupId;
             this.tagIds = tagIds;
             this.currentUserId = currentUserId;
+
+            if (lang == null || lang.isBlank() || !isKitLanguage(lang))
+                this.lang = KitLanguage.EN.name();
+            else
+                this.lang = lang;
+
             this.validateSelf();
+        }
+
+        private boolean isKitLanguage(String lang) {
+            return Arrays.stream(KitLanguage.values())
+                .map(KitLanguage::name)
+                .toList()
+                .contains(lang);
         }
     }
 

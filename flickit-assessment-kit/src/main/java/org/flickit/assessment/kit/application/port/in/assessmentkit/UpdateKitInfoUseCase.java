@@ -2,10 +2,14 @@ package org.flickit.assessment.kit.application.port.in.assessmentkit;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.flickit.assessment.common.application.SelfValidating;
+import org.flickit.assessment.common.exception.ValidationException;
+import org.flickit.assessment.kit.application.domain.KitLanguage;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,6 +35,8 @@ public interface UpdateKitInfoUseCase {
         @Size(max = 200, message = UPDATE_KIT_INFO_SUMMARY_SIZE_MAX)
         String summary;
 
+        String lang;
+
         Boolean published;
 
         Boolean isPrivate;
@@ -47,17 +53,39 @@ public interface UpdateKitInfoUseCase {
         @NotNull(message = COMMON_CURRENT_USER_ID_NOT_NULL)
         UUID currentUserId;
 
-        public Param(Long kitId, String title, String summary, Boolean published, Boolean isPrivate, Double price, String about, List<Long> tags, UUID currentUserId) {
+        @Builder
+        public Param(Long kitId,
+                     String title,
+                     String summary,
+                     String lang,
+                     Boolean published,
+                     Boolean isPrivate,
+                     Double price,
+                     String about,
+                     List<Long> tags,
+                     UUID currentUserId) {
             this.kitId = kitId;
             this.currentUserId = currentUserId;
             this.title = title;
             this.summary = summary;
+            this.lang = lang;
             this.published = published;
             this.isPrivate = isPrivate;
             this.price = price;
             this.about = about;
             this.tags = tags;
+
+            if (lang != null && !isKitLanguage(lang))
+                throw new ValidationException(UPDATE_KIT_INFO_KIT_LANGUAGE_INVALID);
+
             this.validateSelf();
+        }
+
+        private boolean isKitLanguage(String lang) {
+            return Arrays.stream(KitLanguage.values())
+                .map(KitLanguage::name)
+                .toList()
+                .contains(lang);
         }
     }
 }

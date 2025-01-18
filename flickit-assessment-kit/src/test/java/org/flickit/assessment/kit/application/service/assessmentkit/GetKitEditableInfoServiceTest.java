@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.flickit.assessment.common.error.ErrorMessageKey.COMMON_CURRENT_USER_NOT_ALLOWED;
@@ -82,6 +83,7 @@ class GetKitEditableInfoServiceTest {
         assertEquals(assessmentKit.getId(), kitEditableInfo.id());
         assertEquals(assessmentKit.getTitle(), kitEditableInfo.title());
         assertEquals(assessmentKit.getSummary(), kitEditableInfo.summary());
+        assertEquals(assessmentKit.getLang(), kitEditableInfo.lang());
         assertEquals(assessmentKit.isPublished(), kitEditableInfo.published());
         assertEquals(assessmentKit.isPrivate(), kitEditableInfo.isPrivate());
         assertEquals(0, kitEditableInfo.price());
@@ -92,16 +94,26 @@ class GetKitEditableInfoServiceTest {
 
     @Test
     void testGetKitEditableInfo_CurrentUserIsNotExpertGroupMember_ErrorMessage() {
-        long kitId = 123L;
-        UUID currentUserId = UUID.randomUUID();
-        GetKitEditableInfoUseCase.Param param = new GetKitEditableInfoUseCase.Param(kitId, currentUserId);
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
+        var param = createParam(GetKitEditableInfoUseCase.Param.ParamBuilder::build);
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
-        when(checkExpertGroupAccessPort.checkIsMember(expertGroup.getId(), currentUserId)).thenReturn(false);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
+        when(checkExpertGroupAccessPort.checkIsMember(expertGroup.getId(), param.getCurrentUserId())).thenReturn(false);
 
         var throwable = assertThrows(AccessDeniedException.class,
             () -> service.getKitEditableInfo(param));
         assertThat(throwable).hasMessage(COMMON_CURRENT_USER_NOT_ALLOWED);
+    }
+
+    private GetKitEditableInfoUseCase.Param createParam(Consumer<GetKitEditableInfoUseCase.Param.ParamBuilder> changer) {
+        var param = paramBuilder();
+        changer.accept(param);
+        return param.build();
+    }
+
+    private GetKitEditableInfoUseCase.Param.ParamBuilder paramBuilder() {
+        return GetKitEditableInfoUseCase.Param.builder()
+            .kitId(1L)
+            .currentUserId(UUID.randomUUID());
     }
 }

@@ -4,6 +4,7 @@ import org.flickit.assessment.common.exception.AccessDeniedException;
 import org.flickit.assessment.common.exception.ResourceNotFoundException;
 import org.flickit.assessment.kit.application.domain.AssessmentKit;
 import org.flickit.assessment.kit.application.domain.ExpertGroup;
+import org.flickit.assessment.kit.application.port.in.assessmentkit.UpdateKitInfoUseCase;
 import org.flickit.assessment.kit.application.port.in.assessmentkit.UpdateKitInfoUseCase.Param;
 import org.flickit.assessment.kit.application.port.out.assessmentkit.UpdateKitInfoPort;
 import org.flickit.assessment.kit.application.port.out.expertgroup.LoadKitExpertGroupPort;
@@ -18,9 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.flickit.assessment.common.error.ErrorMessageKey.COMMON_CURRENT_USER_NOT_ALLOWED;
 import static org.flickit.assessment.common.util.SlugCodeUtil.generateSlugCode;
@@ -43,20 +43,11 @@ class UpdateKitInfoServiceTest {
 
     @Test
     void testUpdateKitInfo_KitNotFound_ErrorMessage() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        var param = new Param(kitId,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            currentUserId);
+        var param = createParam(b -> b.currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenThrow(new ResourceNotFoundException(KIT_ID_NOT_FOUND));
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenThrow(new ResourceNotFoundException(KIT_ID_NOT_FOUND));
 
         var throwable = assertThrows(ResourceNotFoundException.class,
             () -> service.updateKitInfo(param));
@@ -65,12 +56,10 @@ class UpdateKitInfoServiceTest {
 
     @Test
     void testUpdateKitInfo_CurrentUserNotAllowed_ErrorMessage() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
-        UUID currentUserId = UUID.randomUUID();
-        var param = new Param(kitId, null, null, null, null, null, null, null, currentUserId);
+        var param = createParam(UpdateKitInfoUseCase.Param.ParamBuilder::build);
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
 
         var throwable = assertThrows(AccessDeniedException.class,
             () -> service.updateKitInfo(param));
@@ -79,14 +68,12 @@ class UpdateKitInfoServiceTest {
 
     @Test
     void testUpdateKitInfo_EditTitle_ValidResults() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        String newTitle = "new title";
-        String newCode = generateSlugCode(newTitle);
-        var param = new Param(kitId, newTitle, null, null, null, null, null, null, currentUserId);
+        var param = createParam(b -> b.title("new title").currentUserId(currentUserId));
+        String newCode = generateSlugCode(param.getTitle());
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
         doNothing().when(updateKitInfoPort).update(any());
 
         service.updateKitInfo(param);
@@ -94,20 +81,18 @@ class UpdateKitInfoServiceTest {
         ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
         verify(updateKitInfoPort, times(1)).update(portParam.capture());
 
-        assertEquals(kitId, portParam.getValue().kitId());
-        assertEquals(newTitle, portParam.getValue().title());
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertEquals(param.getTitle(), portParam.getValue().title());
         assertEquals(newCode, portParam.getValue().code());
     }
 
     @Test
     void testUpdateKitInfo_EditSummary_ValidResults() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        String newSummary = "new summary";
-        var param = new Param(kitId, null, newSummary, null, null, null, null, null, currentUserId);
+        var param = createParam(b -> b.summary("new summary").currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
         doNothing().when(updateKitInfoPort).update(any());
 
         service.updateKitInfo(param);
@@ -115,19 +100,17 @@ class UpdateKitInfoServiceTest {
         ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
         verify(updateKitInfoPort, times(1)).update(portParam.capture());
 
-        assertEquals(kitId, portParam.getValue().kitId());
-        assertEquals(newSummary, portParam.getValue().summary());
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertEquals(param.getSummary(), portParam.getValue().summary());
     }
 
     @Test
     void testUpdateKitInfo_EditPublished_ValidResults() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        Boolean newPublished = FALSE;
-        var param = new Param(kitId, null, null, newPublished, null, null, null, null, currentUserId);
+        var param = createParam(b -> b.published(false).currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
         doNothing().when(updateKitInfoPort).update(any());
 
         service.updateKitInfo(param);
@@ -135,19 +118,17 @@ class UpdateKitInfoServiceTest {
         ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
         verify(updateKitInfoPort, times(1)).update(portParam.capture());
 
-        assertEquals(kitId, portParam.getValue().kitId());
-        assertEquals(newPublished, portParam.getValue().published());
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertEquals(param.getPublished(), portParam.getValue().published());
     }
 
     @Test
     void testUpdateKitInfo_EditIsPrivate_ValidResults() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        Boolean newIsPrivate = TRUE;
-        var param = new Param(kitId, null, null, null, newIsPrivate, null, null, null, currentUserId);
+        var param = createParam(b -> b.isPrivate(true).currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
         doNothing().when(updateKitInfoPort).update(any());
 
         service.updateKitInfo(param);
@@ -155,19 +136,17 @@ class UpdateKitInfoServiceTest {
         ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
         verify(updateKitInfoPort, times(1)).update(portParam.capture());
 
-        assertEquals(kitId, portParam.getValue().kitId());
-        assertEquals(newIsPrivate, portParam.getValue().isPrivate());
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertEquals(param.getIsPrivate(), portParam.getValue().isPrivate());
     }
 
     @Test
     void testUpdateKitInfo_EditPrice_ValidResults() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        Double newPrice = 2D;
-        var param = new Param(kitId, null, null, null, null, newPrice, null, null, currentUserId);
+        var param = createParam(b -> b.price(2d).currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
         doNothing().when(updateKitInfoPort).update(any());
 
         service.updateKitInfo(param);
@@ -175,19 +154,17 @@ class UpdateKitInfoServiceTest {
         ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
         verify(updateKitInfoPort, times(1)).update(portParam.capture());
 
-        assertEquals(kitId, portParam.getValue().kitId());
-        assertEquals(newPrice, portParam.getValue().price());
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertEquals(param.getPrice(), portParam.getValue().price());
     }
 
     @Test
     void testUpdateKitInfo_EditAbout_ValidResults() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        String newAbout = "new about";
-        var param = new Param(kitId, null, null, null, null, null, newAbout, null, currentUserId);
+        var param = createParam(b -> b.about("new about").currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
         doNothing().when(updateKitInfoPort).update(any());
 
         service.updateKitInfo(param);
@@ -195,19 +172,35 @@ class UpdateKitInfoServiceTest {
         ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
         verify(updateKitInfoPort, times(1)).update(portParam.capture());
 
-        assertEquals(kitId, portParam.getValue().kitId());
-        assertEquals(newAbout, portParam.getValue().about());
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertEquals(param.getAbout(), portParam.getValue().about());
+    }
+
+    @Test
+    void testUpdateKitInfo_EditLang_ValidResults() {
+        ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
+        UUID currentUserId = expertGroup.getOwnerId();
+        var param = createParam(b -> b.lang("FA").currentUserId(currentUserId));
+
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
+        doNothing().when(updateKitInfoPort).update(any());
+
+        service.updateKitInfo(param);
+
+        ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
+        verify(updateKitInfoPort, times(1)).update(portParam.capture());
+
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertEquals(param.getLang(), portParam.getValue().lang());
     }
 
     @Test
     void testUpdateKitInfo_EditTags_ValidResults() {
-        Long kitId = 1L;
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
-        List<Long> newTags = List.of(3L);
-        var param = new Param(kitId, null, null, null, null, null, null, newTags, currentUserId);
+        var param = createParam(b -> b.tags(List.of(3L)).currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(kitId)).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
         doNothing().when(updateKitInfoPort).update(any());
 
         service.updateKitInfo(param);
@@ -215,8 +208,8 @@ class UpdateKitInfoServiceTest {
         ArgumentCaptor<UpdateKitInfoPort.Param> portParam = ArgumentCaptor.forClass(UpdateKitInfoPort.Param.class);
         verify(updateKitInfoPort, times(1)).update(portParam.capture());
 
-        assertEquals(kitId, portParam.getValue().kitId());
-        assertIterableEquals(newTags, portParam.getValue().tags());
+        assertEquals(param.getKitId(), portParam.getValue().kitId());
+        assertIterableEquals(param.getTags(), portParam.getValue().tags());
     }
 
     @Test
@@ -224,12 +217,24 @@ class UpdateKitInfoServiceTest {
         ExpertGroup expertGroup = ExpertGroupMother.createExpertGroup();
         UUID currentUserId = expertGroup.getOwnerId();
         AssessmentKit assessmentKit = AssessmentKitMother.simpleKit();
-        var param = new Param(assessmentKit.getId(), null, null, null, null, null, null, null, currentUserId);
+        var param = createParam(b -> b.kitId(assessmentKit.getId()).currentUserId(currentUserId));
 
-        when(loadKitExpertGroupPort.loadKitExpertGroup(assessmentKit.getId())).thenReturn(expertGroup);
+        when(loadKitExpertGroupPort.loadKitExpertGroup(param.getKitId())).thenReturn(expertGroup);
 
         service.updateKitInfo(param);
 
         verify(updateKitInfoPort, never()).update(any());
+    }
+
+    private UpdateKitInfoUseCase.Param createParam(Consumer<Param.ParamBuilder> changer) {
+        var param = paramBuilder();
+        changer.accept(param);
+        return param.build();
+    }
+
+    private UpdateKitInfoUseCase.Param.ParamBuilder paramBuilder() {
+        return UpdateKitInfoUseCase.Param.builder()
+            .kitId(1L)
+            .currentUserId(UUID.randomUUID());
     }
 }

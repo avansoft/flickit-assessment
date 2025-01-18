@@ -89,6 +89,7 @@ public class CreateKitByDslService implements CreateKitByDslUseCase {
             param.getTitle(),
             param.getSummary(),
             param.getAbout(),
+            param.getLang(),
             Boolean.FALSE,
             param.getIsPrivate(),
             param.getExpertGroupId(),

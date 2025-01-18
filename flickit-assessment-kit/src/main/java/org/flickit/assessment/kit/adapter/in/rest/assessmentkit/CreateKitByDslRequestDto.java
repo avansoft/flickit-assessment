@@ -5,6 +5,7 @@ import java.util.List;
 public record CreateKitByDslRequestDto(String title,
                                        String summary,
                                        String about,
+                                       String lang,
                                        boolean isPrivate,
                                        Long kitDslId,
                                        Long expertGroupId,

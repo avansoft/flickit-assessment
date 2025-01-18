@@ -31,6 +31,7 @@ public class CreateAssessmentKitRestController {
         return new Param(requestDto.title(),
             requestDto.summary(),
             requestDto.about(),
+            requestDto.lang(),
             requestDto.isPrivate(),
             requestDto.expertGroupId(),
             requestDto.tagIds(),
