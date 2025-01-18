@@ -26,7 +26,7 @@ public class SearchKitOptionsService implements SearchKitOptionsUseCase {
             param.getCurrentUserId()));
 
         List<KitListItem> items = paginatedResponse.getItems().stream()
-            .map(e -> new KitListItem(e.getId(), e.getTitle()))
+            .map(e -> new KitListItem(e.getId(), e.getTitle(), e.isPrivate()))
             .toList();
 
         return new PaginatedResponse<>(

@@ -3,6 +3,7 @@ package org.flickit.assessment.kit.application.port.in.assessmentkit;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import org.flickit.assessment.common.application.SelfValidating;
@@ -33,6 +34,7 @@ public interface SearchKitOptionsUseCase {
         @NotNull(message = COMMON_CURRENT_USER_ID_NOT_NULL)
         UUID currentUserId;
 
+        @Builder
         public Param(String query, int page, int size, UUID currentUserId) {
             this.query = query;
             this.page = page;
@@ -42,5 +44,5 @@ public interface SearchKitOptionsUseCase {
         }
     }
 
-    record KitListItem(long id, String title) {}
+    record KitListItem(long id, String title, boolean isPrivate) {}
 }

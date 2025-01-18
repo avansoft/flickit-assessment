@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,7 +31,7 @@ class SearchKitOptionsServiceTest {
 
     @Test
     void testSearchKitOptions_ValidInput_ValidResult() {
-        var param = new SearchKitOptionsUseCase.Param("", 0, 10, UUID.randomUUID());
+        var param = createParam(SearchKitOptionsUseCase.Param.ParamBuilder::build);
 
         AssessmentKit assessmentKit = AssessmentKitMother.simpleKit();
         List<AssessmentKit> items = List.of(assessmentKit);
@@ -49,5 +50,19 @@ class SearchKitOptionsServiceTest {
             assertEquals(assessmentKit.getId(), item.id());
             assertEquals(assessmentKit.getTitle(), item.title());
         }
+    }
+
+    private SearchKitOptionsUseCase.Param createParam(Consumer<SearchKitOptionsUseCase.Param.ParamBuilder> changer) {
+        var paramBuilder = paramBuilder();
+        changer.accept(paramBuilder);
+        return paramBuilder.build();
+    }
+
+    private SearchKitOptionsUseCase.Param.ParamBuilder paramBuilder() {
+        return SearchKitOptionsUseCase.Param.builder()
+            .query("query")
+            .page(0)
+            .size(50)
+            .currentUserId(UUID.randomUUID());
     }
 }
