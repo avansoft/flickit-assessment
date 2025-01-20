@@ -52,7 +52,8 @@ public class CreateAttributeInsightService implements CreateAttributeInsightUseC
             attributeId,
             assessorInsight,
             LocalDateTime.now(),
-            true);
+            true,
+            LocalDateTime.now());
     }
 
     private static AttributeInsight toAttributeInsight(UUID assessmentResultId, long attributeId, String assessorInsight) {
@@ -63,6 +64,7 @@ public class CreateAttributeInsightService implements CreateAttributeInsightUseC
             null,
             LocalDateTime.now(),
             null,
-            true);
+            true,
+            LocalDateTime.now());
     }
 }

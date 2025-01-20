@@ -1,17 +1,12 @@
 package org.flickit.assessment.core.application.service.attributeinsight;
 
-import org.flickit.assessment.common.application.MessageBundle;
 import org.flickit.assessment.common.application.domain.assessment.AssessmentAccessChecker;
-import org.flickit.assessment.common.config.AppAiProperties;
 import org.flickit.assessment.common.exception.AccessDeniedException;
 import org.flickit.assessment.common.exception.ResourceNotFoundException;
-import org.flickit.assessment.core.application.domain.Attribute;
 import org.flickit.assessment.core.application.domain.AttributeInsight;
 import org.flickit.assessment.core.application.port.in.attributeinsight.GetAttributeInsightUseCase;
 import org.flickit.assessment.core.application.port.out.assessmentresult.LoadAssessmentResultPort;
-import org.flickit.assessment.core.application.port.out.attribute.LoadAttributePort;
 import org.flickit.assessment.core.application.port.out.attributeinsight.LoadAttributeInsightPort;
-import org.flickit.assessment.core.test.fixture.application.AttributeMother;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,7 +21,6 @@ import static org.flickit.assessment.common.application.domain.assessment.Assess
 import static org.flickit.assessment.common.application.domain.assessment.AssessmentPermission.VIEW_SUBJECT_REPORT;
 import static org.flickit.assessment.common.error.ErrorMessageKey.COMMON_CURRENT_USER_NOT_ALLOWED;
 import static org.flickit.assessment.core.common.ErrorMessageKey.GET_ATTRIBUTE_INSIGHT_ASSESSMENT_RESULT_NOT_FOUND;
-import static org.flickit.assessment.core.common.MessageKey.ASSESSMENT_AI_IS_DISABLED;
 import static org.flickit.assessment.core.test.fixture.application.AssessmentResultMother.validResult;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -46,12 +40,6 @@ class GetAttributeInsightServiceTest {
 
     @Mock
     private LoadAssessmentResultPort assessmentResultPort;
-
-    @Mock
-    private LoadAttributePort loadAttributePort;
-
-    @Mock
-    private AppAiProperties appAiProperties;
 
     @Test
     void testGetAttributeInsight_UserDoesNotHaveRequiredPermission_ThrowAccessDeniedException() {
@@ -81,33 +69,6 @@ class GetAttributeInsightServiceTest {
     }
 
     @Test
-    void testGetAttributeInsight_AttributeInsightDoesNotExistAndOpenAiIsNotEnable_UserNotAllowedToCreateInsight() {
-        var attributeId = 1L;
-        var currentUserId = UUID.randomUUID();
-        var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
-        var assessmentResult = validResult();
-        Attribute attribute = AttributeMother.simpleAttribute();
-
-        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
-        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
-        when(assessmentResultPort.loadByAssessmentId(param.getAssessmentId())).thenReturn(Optional.of(assessmentResult));
-        when(loadAttributeInsightPort.load(assessmentResult.getId(), attributeId)).thenReturn(Optional.empty());
-        when(appAiProperties.isEnabled()).thenReturn(false);
-        when(loadAttributePort.load(param.getAttributeId(), assessmentResult.getKitVersionId())).thenReturn(attribute);
-
-        var result = assertDoesNotThrow(() -> service.getInsight(param));
-
-        assertNotNull(result);
-        assertNotNull(result.aiInsight());
-        assertEquals(MessageBundle.message(ASSESSMENT_AI_IS_DISABLED, attribute.getTitle()), result.aiInsight().insight());
-        assertNull(result.aiInsight().creationTime());
-        assertTrue(result.aiInsight().isValid());
-        assertNull(result.assessorInsight());
-        assertFalse(result.editable());
-        assertFalse(result.approved());
-    }
-
-    @Test
     void testGetAttributeInsight_AttributeInsightDoesNotExist_UserHasCreateInsightPermission() {
         var attributeId = 1L;
         var currentUserId = UUID.randomUUID();
@@ -118,7 +79,6 @@ class GetAttributeInsightServiceTest {
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
         when(assessmentResultPort.loadByAssessmentId(param.getAssessmentId())).thenReturn(Optional.of(assessmentResult));
         when(loadAttributeInsightPort.load(assessmentResult.getId(), attributeId)).thenReturn(Optional.empty());
-        when(appAiProperties.isEnabled()).thenReturn(true);
 
         var result = assertDoesNotThrow(() -> service.getInsight(param));
         assertNotNull(result);
@@ -139,7 +99,6 @@ class GetAttributeInsightServiceTest {
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(false);
         when(assessmentResultPort.loadByAssessmentId(param.getAssessmentId())).thenReturn(Optional.of(assessmentResult));
         when(loadAttributeInsightPort.load(assessmentResult.getId(), attributeId)).thenReturn(Optional.empty());
-        when(appAiProperties.isEnabled()).thenReturn(true);
 
         var result = assertDoesNotThrow(() -> service.getInsight(param));
         assertNotNull(result);
@@ -150,7 +109,7 @@ class GetAttributeInsightServiceTest {
     }
 
     @Test
-    void testGetAttributeInsight_AssessorInsightIsNotNullAndIsValid_ReturnAssessorInsight() {
+    void testGetAttributeInsight_AssessorInsightIsNotNullAndAfterThanAiInsightAndIsValidBasedOnInsightTime_ReturnAssessorInsight() {
         var attributeId = 1L;
         var currentUserId = UUID.randomUUID();
         var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
@@ -162,7 +121,8 @@ class GetAttributeInsightServiceTest {
             LocalDateTime.now(),
             LocalDateTime.now().plusDays(1),
             "input path",
-            true);
+            true,
+            LocalDateTime.now().plusDays(1));
 
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
@@ -181,7 +141,7 @@ class GetAttributeInsightServiceTest {
     }
 
     @Test
-    void testGetAttributeInsight_AssessorInsightIsNotNullAndIsNotValid_ReturnAssessortInsight() {
+    void testGetAttributeInsight_AssessorInsightIsNotNullAndAfterThanAiInsightAndIsValidBasedOnLastModificationTime_ReturnAssessorInsight() {
         var attributeId = 1L;
         var currentUserId = UUID.randomUUID();
         var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
@@ -190,10 +150,107 @@ class GetAttributeInsightServiceTest {
             attributeId,
             "ai insight ",
             "assessor insight",
-            LocalDateTime.now(),
+            LocalDateTime.now().minusDays(2),
             LocalDateTime.now().minusDays(1),
             "input path",
-            true);
+            true,
+            LocalDateTime.now().plusDays(1));
+
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
+        when(assessmentResultPort.loadByAssessmentId(param.getAssessmentId())).thenReturn(Optional.of(assessmentResult));
+        when(loadAttributeInsightPort.load(assessmentResult.getId(), attributeId)).thenReturn(Optional.of(attributeInsight));
+
+        var result = service.getInsight(param);
+        assertNotNull(result);
+        assertNull(result.aiInsight());
+        assertNotNull(result.assessorInsight());
+        assertEquals(attributeInsight.getAssessorInsight(), result.assessorInsight().insight());
+        assertEquals(attributeInsight.getAssessorInsightTime(), result.assessorInsight().creationTime());
+        assertTrue(result.assessorInsight().isValid());
+        assertTrue(result.editable());
+        assertTrue(result.approved());
+    }
+
+    @Test
+    void testGetAttributeInsight_AssessorInsightIsNotNullAndBeforeThanAiInsightAndAiInsightIsValid_ReturnAiInsight() {
+        var attributeId = 1L;
+        var currentUserId = UUID.randomUUID();
+        var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
+        var assessmentResult = validResult();
+        var attributeInsight = new AttributeInsight(assessmentResult.getId(),
+            attributeId,
+            "ai insight ",
+            "assessor insight",
+            LocalDateTime.now().plusDays(1),
+            LocalDateTime.now(),
+            "input path",
+            true,
+            LocalDateTime.now().plusDays(1));
+
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
+        when(assessmentResultPort.loadByAssessmentId(param.getAssessmentId())).thenReturn(Optional.of(assessmentResult));
+        when(loadAttributeInsightPort.load(assessmentResult.getId(), attributeId)).thenReturn(Optional.of(attributeInsight));
+
+        var result = service.getInsight(param);
+        assertNotNull(result);
+        assertNotNull(result.aiInsight());
+        assertNull(result.assessorInsight());
+        assertEquals(attributeInsight.getAiInsight(), result.aiInsight().insight());
+        assertEquals(attributeInsight.getAiInsightTime(), result.aiInsight().creationTime());
+        assertTrue(result.aiInsight().isValid());
+        assertTrue(result.editable());
+        assertTrue(result.approved());
+    }
+
+    @Test
+    void testGetAttributeInsight_AssessorInsightIsNotNullAndBeforeThanAiInsightAndAiInsightIsNotValid_ReturnAiInsight() {
+        var attributeId = 1L;
+        var currentUserId = UUID.randomUUID();
+        var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
+        var assessmentResult = validResult();
+        var attributeInsight = new AttributeInsight(assessmentResult.getId(),
+            attributeId,
+            "ai insight ",
+            "assessor insight",
+            LocalDateTime.now().minusDays(1),
+            LocalDateTime.now().minusDays(2),
+            "input path",
+            true,
+            LocalDateTime.now().minusDays(1));
+
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
+        when(assessmentResultPort.loadByAssessmentId(param.getAssessmentId())).thenReturn(Optional.of(assessmentResult));
+        when(loadAttributeInsightPort.load(assessmentResult.getId(), attributeId)).thenReturn(Optional.of(attributeInsight));
+
+        var result = service.getInsight(param);
+        assertNotNull(result);
+        assertNotNull(result.aiInsight());
+        assertNull(result.assessorInsight());
+        assertEquals(attributeInsight.getAiInsight(), result.aiInsight().insight());
+        assertEquals(attributeInsight.getAiInsightTime(), result.aiInsight().creationTime());
+        assertFalse(result.aiInsight().isValid());
+        assertTrue(result.editable());
+        assertTrue(result.approved());
+    }
+
+    @Test
+    void testGetAttributeInsight_AssessorInsightIsNotNullAndAfterThanAiInsightAndIsNotValid_ReturnAssessorInsight() {
+        var attributeId = 1L;
+        var currentUserId = UUID.randomUUID();
+        var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
+        var assessmentResult = validResult();
+        var attributeInsight = new AttributeInsight(assessmentResult.getId(),
+            attributeId,
+            "ai insight ",
+            "assessor insight",
+            LocalDateTime.now().minusDays(2),
+            LocalDateTime.now().minusDays(1),
+            "input path",
+            true,
+            LocalDateTime.now().minusDays(1));
 
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
@@ -224,7 +281,8 @@ class GetAttributeInsightServiceTest {
             LocalDateTime.now().minusDays(1),
             null,
             "input path",
-            false);
+            false,
+            LocalDateTime.now().minusDays(1));
 
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
@@ -243,7 +301,7 @@ class GetAttributeInsightServiceTest {
     }
 
     @Test
-    void testGetAttributeInsight_AssessorInsightIsNull_AiInsightIsValid_ReturnAiInsight() {
+    void testGetAttributeInsight_AssessorInsightIsNull_AiInsightIsValidBasedOnInsightTime_ReturnAiInsight() {
         var attributeId = 1L;
         var currentUserId = UUID.randomUUID();
         var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
@@ -255,7 +313,40 @@ class GetAttributeInsightServiceTest {
             LocalDateTime.now().plusDays(1),
             null,
             "input path",
-            false);
+            false,
+            LocalDateTime.now().plusDays(1));
+
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
+        when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);
+        when(assessmentResultPort.loadByAssessmentId(param.getAssessmentId())).thenReturn(Optional.of(assessmentResult));
+        when(loadAttributeInsightPort.load(assessmentResult.getId(), attributeId)).thenReturn(Optional.of(attributeInsight));
+
+        var result = service.getInsight(param);
+        assertNotNull(result);
+        assertNotNull(result.aiInsight());
+        assertEquals(attributeInsight.getAiInsight(), result.aiInsight().insight());
+        assertEquals(attributeInsight.getAiInsightTime(), result.aiInsight().creationTime());
+        assertTrue(result.aiInsight().isValid());
+        assertNull(result.assessorInsight());
+        assertTrue(result.editable());
+        assertFalse(result.approved());
+    }
+
+    @Test
+    void testGetAttributeInsight_AssessorInsightIsNull_AiInsightIsValidBasedOnLastModificationTime_ReturnAiInsight() {
+        var attributeId = 1L;
+        var currentUserId = UUID.randomUUID();
+        var param = new GetAttributeInsightUseCase.Param(UUID.randomUUID(), attributeId, currentUserId);
+        var assessmentResult = validResult();
+        var attributeInsight = new AttributeInsight(assessmentResult.getId(),
+            attributeId,
+            "ai insight ",
+            null,
+            LocalDateTime.now().minusDays(1),
+            null,
+            "input path",
+            false,
+            LocalDateTime.now().plusDays(1));
 
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, VIEW_SUBJECT_REPORT)).thenReturn(true);
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), currentUserId, CREATE_ATTRIBUTE_INSIGHT)).thenReturn(true);

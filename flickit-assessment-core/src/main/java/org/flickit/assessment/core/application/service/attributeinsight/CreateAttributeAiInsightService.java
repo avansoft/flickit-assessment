@@ -131,7 +131,8 @@ public class CreateAttributeAiInsightService implements CreateAttributeAiInsight
             aiInsight,
             LocalDateTime.now(),
             aiInputPath,
-            false);
+            false,
+            LocalDateTime.now());
     }
 
     private AttributeInsight toAttributeInsight(UUID assessmentResultId, long attributeId, String aiInsight, String aiInputPath) {
@@ -142,6 +143,7 @@ public class CreateAttributeAiInsightService implements CreateAttributeAiInsight
             LocalDateTime.now(),
             null,
             aiInputPath,
-            false);
+            false,
+            LocalDateTime.now());
     }
 }

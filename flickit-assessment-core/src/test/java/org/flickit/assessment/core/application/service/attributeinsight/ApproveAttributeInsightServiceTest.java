@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -52,11 +53,11 @@ class ApproveAttributeInsightServiceTest {
 
         when(assessmentAccessChecker.isAuthorized(param.getAssessmentId(), param.getCurrentUserId(), APPROVE_ATTRIBUTE_INSIGHT))
             .thenReturn(true);
-        doNothing().when(approveAttributeInsightPort).approve(param.getAssessmentId(), param.getAttributeId());
+        doNothing().when(approveAttributeInsightPort).approve(eq(param.getAssessmentId()), eq(param.getAttributeId()), any(LocalDateTime.class));
 
         service.approveAttributeInsight(param);
 
-        verify(approveAttributeInsightPort).approve(param.getAssessmentId(), param.getAttributeId());
+        verify(approveAttributeInsightPort).approve(eq(param.getAssessmentId()), eq(param.getAttributeId()), any(LocalDateTime.class));
     }
 
     private ApproveAttributeInsightUseCase.Param createParam(Consumer<ApproveAttributeInsightUseCase.Param.ParamBuilder> changer) {

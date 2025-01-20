@@ -100,6 +100,7 @@ class CreateAttributeInsightServiceTest {
         assertEquals(param.getAssessorInsight(), captor.getValue().getAssessorInsight());
         assertNotNull(captor.getValue().getAssessorInsightTime());
         assertTrue(captor.getValue().isApproved());
+        assertNotNull(captor.getValue().getLastModificationTime());
 
         verifyNoInteractions(updateAttributeInsightPort);
     }
@@ -123,6 +124,7 @@ class CreateAttributeInsightServiceTest {
         assertEquals(param.getAssessorInsight(), captor.getValue().assessorInsight());
         assertNotNull(captor.getValue().assessorInsightTime());
         assertTrue(captor.getValue().isApproved());
+        assertNotNull(captor.getValue().lastModificationTime());
 
         verifyNoInteractions(createAttributeInsightPort);
     }

@@ -348,6 +348,7 @@ class CreateAttributeAiInsightServiceTest {
         assertEquals(attributeInsight.getAiInsight(), captor.getValue().aiInsight());
         assertNotNull(captor.getValue().aiInsightTime());
         assertFalse(captor.getValue().isApproved());
+        assertNotNull(captor.getValue().lastModificationTime());
 
         verifyNoInteractions(createAttributeInsightPort);
     }
@@ -389,6 +390,7 @@ class CreateAttributeAiInsightServiceTest {
         assertEquals(attributeInsight.getAiInsight(), captor.getValue().aiInsight());
         assertNotNull(captor.getValue().aiInsightTime());
         assertFalse(captor.getValue().isApproved());
+        assertNotNull(captor.getValue().lastModificationTime());
 
         verifyNoInteractions(createAttributeInsightPort, uploadAttributeScoresFilePort);
     }

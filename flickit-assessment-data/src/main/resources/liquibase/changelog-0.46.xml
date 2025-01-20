@@ -45,4 +45,13 @@
         <renameColumn tableName="fac_assessment_report" oldColumnName="meta_data" newColumnName="metadata"/>
     </changeSet>
 
+    <changeSet id="0.46-07" author="Mahdi Rezazadeh">
+        <addColumn tableName="fac_attribute_insight">
+            <column name="last_modification_time" type="${datetime_with_time_zone_type}"
+                    valueComputed="GREATEST(ai_insight_time, COALESCE(assessor_insight_time, ai_insight_time))">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

@@ -46,6 +46,9 @@ public class AttributeInsightJpaEntity extends AbstractEntity<AttributeInsightJp
     @Column(name = "approved", nullable = false)
     private Boolean approved;
 
+    @Column(name = "last_modification_time", nullable = false)
+    private LocalDateTime lastModificationTime;
+
     @Override
     public EntityId getId() {
         return new AttributeInsightJpaEntity.EntityId(assessmentResultId, attributeId);

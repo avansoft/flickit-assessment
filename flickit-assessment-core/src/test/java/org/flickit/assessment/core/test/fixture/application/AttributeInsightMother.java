@@ -16,7 +16,8 @@ public class AttributeInsightMother {
             LocalDateTime.now().plusSeconds(10),
             LocalDateTime.now().plusSeconds(10),
             "input path",
-            false);
+            false,
+            LocalDateTime.now().plusSeconds(10));
     }
 
     public static AttributeInsight simpleAttributeAiInsightMinInsightTime(){
@@ -27,7 +28,8 @@ public class AttributeInsightMother {
             LocalDateTime.MIN,
             LocalDateTime.now().plusSeconds(10),
             "input path",
-            false);
+            false,
+            LocalDateTime.now().plusSeconds(10));
     }
 
     public static AttributeInsight simpleAttributeAiInsightMinInsightsTime(){
@@ -38,6 +40,7 @@ public class AttributeInsightMother {
             LocalDateTime.MIN,
             LocalDateTime.MIN,
             "input path",
-            false);
+            false,
+            LocalDateTime.MIN);
     }
 }

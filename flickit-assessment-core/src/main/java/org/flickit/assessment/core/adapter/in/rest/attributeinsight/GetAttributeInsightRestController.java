@@ -18,7 +18,8 @@ public class GetAttributeInsightRestController {
     private final GetAttributeInsightUseCase useCase;
     private final UserContext userContext;
 
-    @GetMapping("/assessments/{assessmentId}/ai-report/attributes/{attributeId}")
+    @GetMapping({"/assessments/{assessmentId}/ai-report/attributes/{attributeId}",
+        "assessments/{assessmentId}/attributes/{attributeId}/insight"})
     public ResponseEntity<GetAttributeInsightUseCase.Result> getAttributeInsight(
         @PathVariable("assessmentId") UUID assessmentId,
         @PathVariable("attributeId") Long attributeId) {

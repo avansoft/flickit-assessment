@@ -1526,6 +1526,39 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Attribute Insight",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authorization_header}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept-Language",
+								"value": "{{accept_language}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/{{api_path}}/assessments/53028c27-83f5-4c10-9105-56e2a4f58a09/attributes/1104/insight",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{api_path}}",
+								"assessments",
+								"53028c27-83f5-4c10-9105-56e2a4f58a09",
+								"attributes",
+								"1104",
+								"insight"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

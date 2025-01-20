@@ -8,6 +8,7 @@ import org.flickit.assessment.core.application.port.out.attributeinsight.Approve
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.flickit.assessment.common.application.domain.assessment.AssessmentPermission.APPROVE_ATTRIBUTE_INSIGHT;
@@ -27,6 +28,6 @@ public class ApproveAttributeInsightService implements ApproveAttributeInsightUs
         if (!assessmentAccessChecker.isAuthorized(assessmentId, param.getCurrentUserId(), APPROVE_ATTRIBUTE_INSIGHT))
             throw new AccessDeniedException(COMMON_CURRENT_USER_NOT_ALLOWED);
 
-        approveAttributeInsightPort.approve(assessmentId, param.getAttributeId());
+        approveAttributeInsightPort.approve(assessmentId, param.getAttributeId(), LocalDateTime.now());
     }
 }

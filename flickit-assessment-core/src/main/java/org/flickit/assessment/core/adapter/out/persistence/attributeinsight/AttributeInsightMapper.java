@@ -16,7 +16,8 @@ public class AttributeInsightMapper {
             entity.getAiInsightTime(),
             entity.getAssessorInsightTime(),
             entity.getAiInputPath(),
-            entity.getApproved());
+            entity.getApproved(),
+            entity.getLastModificationTime());
     }
 
     public static AttributeInsightJpaEntity mapToJpaEntity(AttributeInsight attributeInsight) {
@@ -28,7 +29,8 @@ public class AttributeInsightMapper {
             attributeInsight.getAiInsightTime(),
             attributeInsight.getAssessorInsightTime(),
             attributeInsight.getAiInputPath(),
-            attributeInsight.isApproved()
+            attributeInsight.isApproved(),
+            attributeInsight.getLastModificationTime()
         );
     }
 }
